@@ -46,7 +46,7 @@ struct SensorsData
 
     float environment_temperature; // degrees celcius (°C)
     float environment_humidity; // relative humidity percentage
-    float environment_pressure;
+    float environment_pressure; // atmospheric pressure (kPa)
 };
 
 //////////////////////
@@ -79,7 +79,10 @@ void sensors_setup()
     gas.begin(GAS_ADDR);
     gas.powerOn();
 
-    sensor_state.environment_sensor.begin(BME280_ADDR, &Wire);
+    bool result = sensor_state.environment_sensor.begin(BME280_ADDR, &Wire);
+    if (!result) {
+        Serial.println("BME280 not found!");
+    }
 
     Serial.print("Gas sensor firmware ");
     gas.getVersion();
@@ -120,6 +123,10 @@ void sensors_data_read(SensorsData *sensor_data)
     sensor_data->gas_concentration_c4h10 = gas.measure_C4H10();
     sensor_data->gas_concentration_h2 = gas.measure_H2();
     sensor_data->gas_concentration_c2h5oh = gas.measure_C2H5OH();
+
+    sensor_data->environment_temperature = sensor_state.environment_sensor.readTemperature();
+    sensor_data->environment_humidity = sensor_state.environment_sensor.readHumidity();
+    sensor_data->environment_pressure = sensor_state.environment_sensor.readPressure();
 }
 
 void sensors_data_print_human(SensorsData *sensor_data, Print& output)
@@ -144,6 +151,9 @@ void sensors_data_print_human(SensorsData *sensor_data, Print& output)
     PRINT_VALUE(gas_concentration_c4h10, " ppm")
     PRINT_VALUE(gas_concentration_h2, " ppm")
     PRINT_VALUE(gas_concentration_c2h5oh, " ppm")
+    PRINT_VALUE(environment_temperature, " ˚C")
+    PRINT_VALUE(environment_humidity, "%")
+    PRINT_VALUE(environment_pressure, " kPa")
 #undef PRINT_VALUE
 }
 
