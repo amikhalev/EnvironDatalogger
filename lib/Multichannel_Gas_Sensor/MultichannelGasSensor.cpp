@@ -134,7 +134,8 @@ int16_t MultichannelGasSensor::read_eeprom(MultichannelGasSensor::Address addr)
 
 uint8_t MultichannelGasSensor::load_firmware_version()
 {
-    if (read_eeprom(kAddrIsSet) == 1126) // get version
+    m_firmwareVersion = 2; // force use new protocol
+    if (read_eeprom(kAddrIsSet) == 1126) // if it succeeded and is the new version
         m_firmwareVersion = 2;
     else
         m_firmwareVersion = 1;

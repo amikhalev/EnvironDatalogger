@@ -3,11 +3,11 @@
 // These includes are not used directly, but are required for other library includes to work
 #include <Wire.h>
 #include <SPI.h>
-// #include <MultichannelGasSensor.h>
-#include <MutichannelGasSensor.h>
+#include <MultichannelGasSensor.h>
+// #include <MutichannelGasSensor.h>
 #include <Adafruit_BME280.h>
 
-// MultichannelGasSensor gas;
+MultichannelGasSensor gas;
 
 /////////////
 // Defines //
@@ -84,8 +84,10 @@ void sensors_setup()
         Serial.println("BME280 not found!");
     }
 
-    Serial.print("Gas sensor firmware ");
-    gas.getVersion();
+    Serial.print("Gas sensor firmware version = ");
+    Serial.println(gas.firmwareVersion());
+    // Serial.print("Gas sensor firmware ");
+    // gas.getVersion();
 }
 
 void sensors_dust_falling()
