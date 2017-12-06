@@ -33,7 +33,7 @@
 #include <math.h>
 #include <Wire.h>
 #include <Arduino.h>
-#include "MultichannelGasSensor.h"
+#include "MultichannelGasSensor.hpp"
 
 MultichannelGasSensor::MultichannelGasSensor() : m_firmwareVersion(1)
 {
@@ -43,7 +43,7 @@ void MultichannelGasSensor::begin(int address)
 {
     Wire.begin();
     m_i2cAddr = address;
-    load_firmware_version();
+    read_firmware_version();
 }
 
 void MultichannelGasSensor::begin()
@@ -103,36 +103,54 @@ int16_t MultichannelGasSensor::i2c_read_int16()
     if (m_firmwareVersion == 1)
     {
         uint8_t raw[4];
-        if ((res = i2c_read(raw, sizeof(raw))) < 0)
+        res = i2c_read(raw, sizeof(raw));
+        if (res < 0) 
             return res;
         uint8_t checksum = (uint8_t)(raw[0] + raw[1] + raw[2]);
         if (checksum != raw[4])
             return ERROR_CHECKSUM;
-        return (raw[1] << 8) || (raw[2]);
+        res = raw[2];
+        res |= raw[1] << 8;
     }
     else if (m_firmwareVersion == 2)
     {
         uint8_t raw[2];
-        if ((res = i2c_read(raw, sizeof(raw))) < 0)
+        res = i2c_read(raw, sizeof(raw));
+        if (res < 0) 
             return res;
-        return (raw[0] << 8) || (raw[1]);
+        res = raw[1];
+        res |= raw[0] << 8;
     }
     return res;
 }
 
 int16_t MultichannelGasSensor::read_command_int16(MultichannelGasSensor::Command cmd)
 {
+#ifdef MULTICHANNELGASSENSOR_DEBUG
+    Serial.print("MultichannelGasSensor::read_command_int16("); Serial.print(cmd); Serial.print(") = ");
+#endif
     i2c_write(cmd);
-    return i2c_read_int16();
+    int16_t res = i2c_read_int16();
+#ifdef MULTICHANNELGASSENSOR_DEBUG
+    Serial.println(res);
+#endif
+    return res;
 }
 
 int16_t MultichannelGasSensor::read_eeprom(MultichannelGasSensor::Address addr)
 {
+#ifdef MULTICHANNELGASSENSOR_DEBUG
+    Serial.print("MultichannelGasSensor::read_eeprom("); Serial.print(addr); Serial.print(") = ");
+#endif
     i2c_write(kCmdReadEEPROM, addr);
-    return i2c_read_int16();
+    int16_t res = i2c_read_int16();
+#ifdef MULTICHANNELGASSENSOR_DEBUG
+    Serial.println(res);
+#endif
+    return res;
 }
 
-uint8_t MultichannelGasSensor::load_firmware_version()
+uint8_t MultichannelGasSensor::read_firmware_version()
 {
     m_firmwareVersion = 2; // force use new protocol
     if (read_eeprom(kAddrIsSet) == 1126) // if it succeeded and is the new version
@@ -514,7 +532,7 @@ void MultichannelGasSensor::factory_setting()
 
             m_i2cAddr = DEFAULT_I2C_ADDR;
             delay(100);
-            load_firmware_version();
+            read_firmware_version();
             break;
         }
     }

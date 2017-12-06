@@ -3,8 +3,7 @@
 // These includes are not used directly, but are required for other library includes to work
 #include <Wire.h>
 #include <SPI.h>
-#include <MultichannelGasSensor.h>
-// #include <MutichannelGasSensor.h>
+#include <MultichannelGasSensor.hpp>
 #include <Adafruit_BME280.h>
 
 MultichannelGasSensor gas;

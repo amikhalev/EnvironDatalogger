@@ -41,6 +41,8 @@
 
 #include <stdint.h>
 
+#define MULTICHANNELGASSENSOR_DEBUG 1
+
 class MultichannelGasSensor
 {
   public:
@@ -152,7 +154,7 @@ class MultichannelGasSensor
     int16_t read_eeprom(Address addr);
 
     // loads the firmware version from eeprom and stores it
-    uint8_t load_firmware_version();
+    uint8_t read_firmware_version();
 
     int16_t read_channel_rs(Channel ch);
     int16_t read_channel_r0(Channel ch);
