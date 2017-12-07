@@ -18,6 +18,7 @@ class Sensors
     DustSensor &dust;
     MultichannelGasSensor gas;
     Adafruit_BME280 environment;
+    RTC_DS1307 rtc;
 
   public: // methods
     Sensors();

@@ -19,7 +19,7 @@ void setup()
     Serial.begin(SERIAL_BAUD);
     Serial.println("EnvironDatalogger v1 setup");
     sensors.begin();
-    last_sample = micros() - SAMPLE_INTERVAL;
+    last_sample = micros();
 
     sensor_data.print_csv_header(Serial);
 }

@@ -2,10 +2,12 @@
 
 #include "config.h"
 #include "sensor_data.hpp"
+#include "datetime_util.hpp"
 
 Sensors::Sensors() : dust(DustSensor::instance), // use the singleton instance
                      gas(),
-                     environment() // use the i2c bus
+                     environment(), // use the i2c bus
+                     rtc()
 {
 }
 
@@ -18,7 +20,9 @@ void Sensors::begin()
     {
         Serial.print("fail: ");
         Serial.println(res);
-    } else {
+    }
+    else
+    {
         Serial.println("good");
     }
 
@@ -46,6 +50,24 @@ void Sensors::begin()
     {
         Serial.println("good");
     }
+
+    Serial.print("RTC_DS1307::begin...");
+    res = rtc.begin();
+    if (!res)
+    {
+        Serial.println("fail");
+    }
+    else
+    {
+        if (!rtc.isrunning())
+            Serial.print("not running");
+        else
+            Serial.print("good");
+        Serial.print(". now = ");
+        DateTime now = rtc.now();
+        print_datetime(now, Serial);
+        Serial.println();
+    }
 }
 
 void Sensors::update()
@@ -58,12 +80,14 @@ void Sensors::read(SensorsData *data)
     int16_t res;
     dust.sample();
     res = gas.read();
-    if (res < 0) {
+    if (res < 0)
+    {
         Serial.print("MultichannelGasSensor::read() fail: ");
         Serial.println(res);
     }
 
     data->time_micros = micros();
+    data->time_rtc = rtc.now();
 
     data->dust_low_ratio_raw = dust.getLowRatio();
     data->dust_concentration = dust.getConcentration();
