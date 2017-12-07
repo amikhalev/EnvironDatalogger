@@ -30,10 +30,12 @@
     THE SOFTWARE.
 */
 
+#include "MultichannelGasSensor.hpp"
+
 #include <math.h>
 #include <Wire.h>
 #include <Arduino.h>
-#include "MultichannelGasSensor.hpp"
+#include "config.h"
 
 MultichannelGasSensor::MultichannelGasSensor() : m_i2cAddr(DEFAULT_I2C_ADDR),
                                                  m_firmwareVersion(1),
@@ -131,9 +133,9 @@ int16_t MultichannelGasSensor::i2c_read_int16()
 int16_t MultichannelGasSensor::read_command_int16(MultichannelGasSensor::Command cmd)
 {
 #ifdef MULTICHANNELGASSENSOR_DEBUG
-    Serial.print("MultichannelGasSensor::read_command_int16(");
+    Serial.print(F("MultichannelGasSensor::read_command_int16("));
     Serial.print(cmd);
-    Serial.print(") = ");
+    Serial.print(F(") = "));
 #endif
     i2c_write(cmd);
     int16_t res = i2c_read_int16();
@@ -146,9 +148,9 @@ int16_t MultichannelGasSensor::read_command_int16(MultichannelGasSensor::Command
 int16_t MultichannelGasSensor::read_eeprom(MultichannelGasSensor::Address addr)
 {
 #ifdef MULTICHANNELGASSENSOR_DEBUG
-    Serial.print("MultichannelGasSensor::read_eeprom(");
+    Serial.print(F("MultichannelGasSensor::read_eeprom("));
     Serial.print(addr);
-    Serial.print(") = ");
+    Serial.print(F(") = "));
 #endif
     i2c_write(kCmdReadEEPROM, addr);
     int16_t res = i2c_read_int16();
@@ -245,11 +247,11 @@ int16_t MultichannelGasSensor::get_channel_r0(MultichannelGasSensor::Channel ch)
     if (buffer != NULL && *buffer >= 0)
         return *buffer;
 #ifdef MULTICHANNELGASSENSOR_DEBUG
-    Serial.print("MultichannelGasSensor::get_channel_r0(");
+    Serial.print(F("MultichannelGasSensor::get_channel_r0("));
     Serial.print(ch);
-    Serial.print("), data = ");
+    Serial.print(F("), data = "));
     Serial.print(data);
-    Serial.print(", buffer = ");
+    Serial.print(F(", buffer = "));
     Serial.println(*buffer);
 #endif
     data = read_channel_r0(ch);
@@ -343,7 +345,9 @@ void MultichannelGasSensor::doCalibrate(void)
 
     if (1 == m_firmwareVersion)
     {
-        Serial.println("MultichannelGasSensor::doCalibrate(): unsupported on fw v1");
+#ifdef MULTICHANNELGASSENSOR_DEBUG
+        Serial.println(F("MultichannelGasSensor::doCalibrate(): unsupported on fw v1"));
+#endif
         return;
     }
     else if (2 == m_firmwareVersion)
@@ -355,12 +359,14 @@ void MultichannelGasSensor::doCalibrate(void)
             a1 = read_channel_rs(kChannel_CO);
             a2 = read_channel_rs(kChannel_NO2);
 
+#ifdef MULTICHANNELGASSENSOR_DEBUG
             Serial.print(a0);
             Serial.print('\t');
             Serial.print(a1);
             Serial.print('\t');
             Serial.print(a2);
             Serial.println('\t');
+#endif
             ledOn();
 
             int cnt = 0;
@@ -389,13 +395,15 @@ void MultichannelGasSensor::doCalibrate(void)
             delay(200);
         }
 
-        Serial.print("write user adc value: ");
+#ifdef MULTICHANNELGASSENSOR_DEBUG
+        Serial.print(F("write user adc value: "));
         Serial.print(a0);
         Serial.print('\t');
         Serial.print(a1);
         Serial.print('\t');
         Serial.print(a2);
         Serial.println('\t');
+#endif
 
         unsigned char tmp[7];
 
@@ -418,25 +426,25 @@ void MultichannelGasSensor::print_eeprom()
 {
     if (m_firmwareVersion == 1)
     {
-        Serial.println("ERROR: display_eeprom() is NOT support by V1 firmware.");
+        Serial.println(F("ERROR: display_eeprom() is NOT support by V1 firmware."));
         return;
     }
 
-    Serial.print("ADDR_IS_SET = ");
+    Serial.print(F("ADDR_IS_SET = "));
     Serial.println(read_eeprom(kAddrIsSet));
-    Serial.print("ADDR_FACTORY_ADC_NH3 = ");
+    Serial.print(F("ADDR_FACTORY_ADC_NH3 = "));
     Serial.println(read_eeprom(kAddrFactoryADC_NH3));
-    Serial.print("ADDR_FACTORY_ADC_CO = ");
+    Serial.print(F("ADDR_FACTORY_ADC_CO = "));
     Serial.println(read_eeprom(kAddrFactoryADC_CO));
-    Serial.print("ADDR_FACTORY_ADC_NO2 = ");
+    Serial.print(F("ADDR_FACTORY_ADC_NO2 = "));
     Serial.println(read_eeprom(kAddrFactoryADC_NO2));
-    Serial.print("ADDR_USER_ADC_NH3 = ");
+    Serial.print(F("ADDR_USER_ADC_NH3 = "));
     Serial.println(read_eeprom(kAddrUserADC_NH3));
-    Serial.print("ADDR_USER_ADC_CO = ");
+    Serial.print(F("ADDR_USER_ADC_CO = "));
     Serial.println(read_eeprom(kAddrUserADC_CO));
-    Serial.print("ADDR_USER_ADC_NO2 = ");
+    Serial.print(F("ADDR_USER_ADC_NO2 = "));
     Serial.println(read_eeprom(kAddrUserADC_CO));
-    Serial.print("ADDR_I2C_ADDRESS = ");
+    Serial.print(F("ADDR_I2C_ADDRESS = "));
     Serial.println(read_eeprom(kAddrI2CAddress));
 }
 
@@ -444,7 +452,7 @@ float MultichannelGasSensor::printR0(Channel ch)
 {
     if (m_firmwareVersion == 1)
     {
-        Serial.println("ERROR: getR0() is NOT support by V1 firmware.");
+        Serial.println(F("ERROR: getR0() is NOT support by V1 firmware."));
         return -1;
     }
 
@@ -453,19 +461,19 @@ float MultichannelGasSensor::printR0(Channel ch)
     {
     case kChannel_NH3: // NH3
         a = read_eeprom(kAddrUserADC_NH3);
-        Serial.print("a_ch3 = ");
+        Serial.print(F("a_ch3 = "));
         Serial.println(a);
         break;
 
     case kChannel_CO: // CO
         a = read_eeprom(kAddrUserADC_CO);
-        Serial.print("a_co = ");
+        Serial.print(F("a_co = "));
         Serial.println(a);
         break;
 
     case kChannel_NO2: // NO2
         a = read_eeprom(kAddrUserADC_NO2);
-        Serial.print("a_no2 = ");
+        Serial.print(F("a_no2 = "));
         Serial.println(a);
         break;
 
@@ -481,7 +489,7 @@ float MultichannelGasSensor::printRs(Channel ch)
 
     if (m_firmwareVersion == 1)
     {
-        Serial.println("ERROR: getRs() is NOT support by V1 firmware.");
+        Serial.println(F("ERROR: getRs() is NOT support by V1 firmware."));
         return -1;
     }
 
@@ -528,9 +536,11 @@ void MultichannelGasSensor::factory_setting()
         {
             // change i2c to 0x04
 
-            Serial.print("I2C address is: 0x");
+#ifdef MULTICHANNELGASSENSOR_DEBUG
+            Serial.print(F("I2C address is: 0x"));
             Serial.println(address, HEX);
-            Serial.println("Change I2C address to 0x04");
+            Serial.println(F("Change I2C address to 0x04"));
+#endif
 
             Wire.beginTransmission(address);
             Wire.write(kCmdChangeI2CAddr);
@@ -570,10 +580,12 @@ void MultichannelGasSensor::change_i2c_address(uint8_t addr)
         cmd = kCmdChangeI2CAddrV1;
     i2c_write(cmd, addr);
 
-    Serial.print("FUNCTION: CHANGE I2C ADDRESS: 0X");
+#ifdef MULTICHANNELGASSENSOR_DEBUG
+    Serial.print(F("MultichannelGasSensor::change_i2c_address() from 0x"));
     Serial.print(m_i2cAddr, HEX);
-    Serial.print(" > 0x");
+    Serial.print(F(" to 0x"));
     Serial.println(addr, HEX);
+#endif
 
     m_i2cAddr = addr;
 }

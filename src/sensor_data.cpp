@@ -25,18 +25,16 @@ void SensorsData::reset()
 
 void SensorsData::print_human(Print &output)
 {
-#define PRINT_VALUE(key, units)  \
-    output.print("-> ");         \
-    output.print(#key);          \
-    output.print(" = ");         \
-    if (this->key >= 0)          \
-        output.print(this->key); \
-    else                         \
-        output.print("invalid"); \
-    output.println(units);
+#define PRINT_VALUE(key, units)        \
+    output.print(F("-> " #key " = ")); \
+    if (this->key >= 0)                \
+        output.print(this->key);       \
+    else                               \
+        output.print(F("invalid"));    \
+    output.println(F(units));
 
     PRINT_VALUE(time_micros, "μs")
-    output.print("-> time_rtc = ");
+    output.print(F("-> time_rtc = "));
     print_datetime(time_rtc, output);
     output.println();
     PRINT_VALUE(dust_low_ratio_raw, "%")
@@ -57,34 +55,34 @@ void SensorsData::print_human(Print &output)
 
 void SensorsData::print_csv(Print &output)
 {
-    Serial.print(time_micros);
-    Serial.print(',');
+    output.print(time_micros);
+    output.print(',');
     print_datetime(time_rtc, output);
-    Serial.print(',');
-    Serial.print(dust_low_ratio_raw);
-    Serial.print(',');
-    Serial.print(dust_concentration);
-    Serial.print(',');
-    Serial.print(gas_concentration_nh3);
-    Serial.print(',');
-    Serial.print(gas_concentration_co);
-    Serial.print(',');
-    Serial.print(gas_concentration_no2);
-    Serial.print(',');
-    Serial.print(gas_concentration_c3h8);
-    Serial.print(',');
-    Serial.print(gas_concentration_c4h10);
-    Serial.print(',');
-    Serial.print(gas_concentration_h2);
-    Serial.print(',');
-    Serial.print(gas_concentration_c2h5oh);
-    Serial.print(',');
-    Serial.print(environment_temperature);
-    Serial.print(',');
-    Serial.print(environment_humidity);
-    Serial.print(',');
-    Serial.print(environment_pressure);
-    Serial.println();
+    output.print(',');
+    output.print(dust_low_ratio_raw);
+    output.print(',');
+    output.print(dust_concentration);
+    output.print(',');
+    output.print(gas_concentration_nh3);
+    output.print(',');
+    output.print(gas_concentration_co);
+    output.print(',');
+    output.print(gas_concentration_no2);
+    output.print(',');
+    output.print(gas_concentration_c3h8);
+    output.print(',');
+    output.print(gas_concentration_c4h10);
+    output.print(',');
+    output.print(gas_concentration_h2);
+    output.print(',');
+    output.print(gas_concentration_c2h5oh);
+    output.print(',');
+    output.print(environment_temperature);
+    output.print(',');
+    output.print(environment_humidity);
+    output.print(',');
+    output.print(environment_pressure);
+    output.println();
 }
 
 void SensorsData::print_csv_header(Print &output)

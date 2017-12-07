@@ -16,4 +16,15 @@
 
 #define TIME_DIFF(t1, t2) ((t1 > t2) ? (t1 - t2) : (t2 - t1))
 
+// #define MULTICHANNELGASSENSOR_DEBUG 1
+// #define DEBUG 1
+
+#if DEBUG
+#define debug(...) Serial.print(__VA_ARGS__)
+#define debugln(...) Serial.print(__VA_ARGS__)
+#else
+#define debug(...)
+#define debugln(...)
+#endif
+
 #endif // __CONFIG_H__

@@ -41,7 +41,6 @@
 
 #include <stdint.h>
 
-// #define MULTICHANNELGASSENSOR_DEBUG 1
 
 class MultichannelGasSensor
 {

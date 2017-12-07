@@ -13,59 +13,61 @@ Sensors::Sensors() : dust(DustSensor::instance), // use the singleton instance
 
 void Sensors::begin()
 {
-    Serial.print("DustSensor::begin...");
+    Serial.print(F("DustSensor::begin..."));
     int16_t res;
     res = dust.begin(DUST_PIN);
     if (res < 0)
     {
-        Serial.print("fail: ");
+        Serial.print(F("fail: "));
         Serial.println(res);
     }
     else
     {
-        Serial.println("good");
+        Serial.println(F("good"));
     }
 
-    Serial.print("MultichannelGasSensor::begin...");
+    Serial.print(F("MultichannelGasSensor::begin..."));
     res = gas.begin(GAS_ADDR);
     gas.powerOn();
     if (res < 0)
     {
-        Serial.print("fail: ");
+        Serial.print(F("fail: "));
         Serial.println(res);
     }
     else
     {
-        Serial.print("good. firmwareVersion=");
+        Serial.print(F("good. firmwareVersion="));
         Serial.println(res);
     }
 
-    Serial.print("Adafruit_BME280::begin...");
+    Serial.print(F("Adafruit_BME280::begin..."));
     res = environment.begin(BME280_ADDR, &Wire);
     if (!res)
     {
-        Serial.println("fail");
+        Serial.println(F("fail"));
     }
     else
     {
-        Serial.println("good");
+        Serial.println(F("good"));
     }
 
-    Serial.print("RTC_DS1307::begin...");
+    Serial.print(F("RTC_DS1307::begin..."));
     res = rtc.begin();
     if (!res)
     {
-        Serial.println("fail");
+        Serial.println(F("fail"));
     }
     else
     {
         if (!rtc.isrunning())
-            Serial.print("not running");
+            Serial.print(F("not running"));
         else
-            Serial.print("good");
-        Serial.print(". now = ");
+            Serial.print(F("good"));
+#if DEBUG
+        Serial.print(F(". now = "));
         DateTime now = rtc.now();
         print_datetime(now, Serial);
+#endif
         Serial.println();
     }
 }
@@ -82,7 +84,7 @@ void Sensors::read(SensorsData *data)
     res = gas.read();
     if (res < 0)
     {
-        Serial.print("MultichannelGasSensor::read() fail: ");
+        Serial.print(F("MultichannelGasSensor::read() fail: "));
         Serial.println(res);
     }
 

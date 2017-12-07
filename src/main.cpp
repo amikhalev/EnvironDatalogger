@@ -17,7 +17,7 @@ uint32_t last_sample;
 void setup()
 {
     Serial.begin(SERIAL_BAUD);
-    Serial.println("EnvironDatalogger v1 setup");
+    debugln(F("EnvironDatalogger v1 setup"));
     sensors.begin();
     last_sample = micros();
 
@@ -31,10 +31,10 @@ void loop()
 
     if (TIME_DIFF(now, last_sample) >= SAMPLE_INTERVAL)
     {
-        // Serial.println("Reading sensor data");
+        // debugln("Reading sensor data");
         sensors.read(&sensor_data);
 
-        // Serial.println("Printing sensor data: ");
+        // debugln("Printing sensor data: ");
         // sensor_data.print_human(Serial);
         sensor_data.print_csv(Serial);
 
