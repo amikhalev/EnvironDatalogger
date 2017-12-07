@@ -7,6 +7,7 @@
 
 #include <MultichannelGasSensor.hpp>
 #include <Adafruit_BME280.h>
+#include <RTClib.h>
 #include "dust_sensor.hpp"
 
 struct SensorsData;
