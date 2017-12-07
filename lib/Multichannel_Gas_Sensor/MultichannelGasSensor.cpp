@@ -343,7 +343,7 @@ void MultichannelGasSensor::doCalibrate(void)
 
     if (1 == m_firmwareVersion)
     {
-        Serial.println("Unsupported calibrate on fw v1");
+        Serial.println("MultichannelGasSensor::doCalibrate(): unsupported on fw v1");
         return;
     }
     else if (2 == m_firmwareVersion)

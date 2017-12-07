@@ -2,6 +2,7 @@
 
 #include "config.h"
 #include "sensors.hpp"
+#include "sensor_data.hpp"
 
 //////////////////////
 // Global variables //
@@ -16,11 +17,11 @@ uint32_t last_sample;
 void setup()
 {
     Serial.begin(SERIAL_BAUD);
-    Serial.println("Starting environmental datalogger");
-
+    Serial.println("EnvironDatalogger v1 setup");
     sensors.begin();
+    last_sample = micros() - SAMPLE_INTERVAL;
 
-    last_sample = micros();
+    sensor_data.print_csv_header(Serial);
 }
 
 void loop()
@@ -30,11 +31,12 @@ void loop()
 
     if (TIME_DIFF(now, last_sample) >= SAMPLE_INTERVAL)
     {
-        Serial.println("Reading sensor data");
+        // Serial.println("Reading sensor data");
         sensors.read(&sensor_data);
 
-        Serial.println("Printing sensor data: ");
-        sensor_data.print_human(Serial);
+        // Serial.println("Printing sensor data: ");
+        // sensor_data.print_human(Serial);
+        sensor_data.print_csv(Serial);
 
         last_sample = now;
     }
