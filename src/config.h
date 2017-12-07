@@ -11,13 +11,19 @@
 #define GAS_ADDR (0x04)
 #define BME280_ADDR (0x76)
 
+#define SD_CS_PIN (9)
+#define SD_SPI_SETTINGS (SPISettings(1000000UL * 10, MSBFIRST, SPI_MODE0))
+
 // in microseconds
-#define SAMPLE_INTERVAL ((uint32_t) 10 * 1000 * 1000)
+#define SAMPLE_INTERVAL ((uint32_t)10 * 1000 * 1000)
 
 #define TIME_DIFF(t1, t2) ((t1 > t2) ? (t1 - t2) : (t2 - t1))
 
 // #define MULTICHANNELGASSENSOR_DEBUG 1
 // #define DEBUG 1
+
+#define info(...) Serial.print(__VA_ARGS__)
+#define infoln(...) Serial.println(__VA_ARGS__)
 
 #if DEBUG
 #define debug(...) Serial.print(__VA_ARGS__)
