@@ -53,7 +53,7 @@ class MultichannelGasSensor
 
     enum : uint32_t
     {
-        DEFAULT_READ_TIMEOUT = 10000 // 100 ms
+        DEFAULT_READ_TIMEOUT = (uint32_t) 100 * 1000 // 100 ms
     };
 
     enum Address : uint8_t
@@ -123,6 +123,7 @@ class MultichannelGasSensor
 
     enum Error : int16_t
     {
+        SUCCESS = 0,
         ERROR_GENERAL = -1,
         ERROR_TIMEOUT = -2,
         ERROR_I2C = -3,
@@ -155,7 +156,7 @@ class MultichannelGasSensor
     int16_t read_eeprom(Address addr);
 
     // loads the firmware version from eeprom and stores it
-    uint8_t read_firmware_version();
+    int16_t read_firmware_version();
 
     int16_t read_channel_rs(Channel ch);
     int16_t read_channel_r0(Channel ch);
@@ -165,9 +166,9 @@ class MultichannelGasSensor
     MultichannelGasSensor(); 
 
     /** Setup gas sensor on i2c address */
-    void begin(uint8_t address);
+    int16_t begin(uint8_t address);
     /** Setup gas sensor on default i2c address */
-    void begin();
+    int16_t begin();
     /** gets the firmware version. either 1 or 2 */
     inline uint8_t firmwareVersion() { return m_firmwareVersion; }
 

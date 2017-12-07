@@ -43,16 +43,16 @@ MultichannelGasSensor::MultichannelGasSensor() : m_i2cAddr(DEFAULT_I2C_ADDR),
 {
 }
 
-void MultichannelGasSensor::begin(uint8_t address)
+int16_t MultichannelGasSensor::begin(uint8_t address)
 {
     Wire.begin();
     m_i2cAddr = address;
-    read_firmware_version();
+    return read_firmware_version();
 }
 
-void MultichannelGasSensor::begin()
+int16_t MultichannelGasSensor::begin()
 {
-    begin(DEFAULT_I2C_ADDR);
+    return begin(DEFAULT_I2C_ADDR);
 }
 
 void MultichannelGasSensor::i2c_write(uint8_t data1)
@@ -158,10 +158,13 @@ int16_t MultichannelGasSensor::read_eeprom(MultichannelGasSensor::Address addr)
     return res;
 }
 
-uint8_t MultichannelGasSensor::read_firmware_version()
+int16_t MultichannelGasSensor::read_firmware_version()
 {
-    m_firmwareVersion = 2;               // force use new protocol
-    if (read_eeprom(kAddrIsSet) == 1126) // if it succeeded and is the new version
+    m_firmwareVersion = 2; // force use new protocol
+    int16_t res = read_eeprom(kAddrIsSet);
+    if (res == ERROR_TIMEOUT)
+        return res;
+    if (res == 1126) // if it succeeded and is the new version
         m_firmwareVersion = 2;
     else
         m_firmwareVersion = 1;
@@ -239,8 +242,16 @@ int16_t MultichannelGasSensor::get_channel_r0(MultichannelGasSensor::Channel ch)
         buffer = &m_r0Buffers[2];
         break;
     }
-    if (buffer != NULL && buffer >= 0)
+    if (buffer != NULL && *buffer >= 0)
         return *buffer;
+#ifdef MULTICHANNELGASSENSOR_DEBUG
+    Serial.print("MultichannelGasSensor::get_channel_r0(");
+    Serial.print(ch);
+    Serial.print("), data = ");
+    Serial.print(data);
+    Serial.print(", buffer = ");
+    Serial.println(*buffer);
+#endif
     data = read_channel_r0(ch);
     if (buffer != NULL && data >= 0)
         *buffer = data;
@@ -272,12 +283,14 @@ int16_t MultichannelGasSensor::read()
         m_ratioBuffers[0] = (float)An_0 / A0_0;
         m_ratioBuffers[1] = (float)An_1 / A0_1;
         m_ratioBuffers[2] = (float)An_2 / A0_2;
+        res = SUCCESS;
     }
     else if (2 == m_firmwareVersion)
     {
         m_ratioBuffers[0] = (float)An_0 / (float)A0_0 * (1023.0 - A0_0) / (1023.0 - An_0);
         m_ratioBuffers[1] = (float)An_1 / (float)A0_1 * (1023.0 - A0_1) / (1023.0 - An_1);
         m_ratioBuffers[2] = (float)An_2 / (float)A0_2 * (1023.0 - A0_2) / (1023.0 - An_2);
+        res = SUCCESS;
     }
 
 fail:
