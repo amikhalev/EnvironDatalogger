@@ -117,6 +117,7 @@ void sensors_data_read(SensorsData *sensor_data)
     sensor_state.dust_last_sample = now;
     sensor_state.dust_low_accumulator = 0;
 
+    gas.read();
     sensor_data->gas_concentration_nh3 = gas.measure_NH3();
     sensor_data->gas_concentration_co = gas.measure_CO();
     sensor_data->gas_concentration_no2 = gas.measure_NO2();

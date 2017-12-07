@@ -41,7 +41,7 @@
 
 #include <stdint.h>
 
-#define MULTICHANNELGASSENSOR_DEBUG 1
+// #define MULTICHANNELGASSENSOR_DEBUG 1
 
 class MultichannelGasSensor
 {
@@ -135,7 +135,8 @@ class MultichannelGasSensor
     uint8_t m_firmwareVersion;
     uint32_t m_readTimeout;
 
-    uint8_t m_adcValueBufs[3];
+    int16_t m_r0Buffers[3];
+    float m_ratioBuffers[3];
 
   private:
     // convenience methods for writing to i2c
@@ -158,12 +159,13 @@ class MultichannelGasSensor
 
     int16_t read_channel_rs(Channel ch);
     int16_t read_channel_r0(Channel ch);
+    int16_t get_channel_r0(Channel ch);
 
   public:
     MultichannelGasSensor(); 
 
     /** Setup gas sensor on i2c address */
-    void begin(int address);
+    void begin(uint8_t address);
     /** Setup gas sensor on default i2c address */
     void begin();
     /** gets the firmware version. either 1 or 2 */
@@ -179,7 +181,10 @@ class MultichannelGasSensor
 
     void doCalibrate(void);
 
-    //get gas concentration, unit: ppm
+    // read new values from sensor
+    int16_t read();
+
+    // compute gas concentration, unit: ppm. Must call read first
     float measure(GasType gas);
     inline float measure_CO() { return measure(kGas_CO); }
     inline float measure_NO2() { return measure(kGas_NO2); }

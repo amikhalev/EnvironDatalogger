@@ -35,11 +35,15 @@
 #include <Arduino.h>
 #include "MultichannelGasSensor.hpp"
 
-MultichannelGasSensor::MultichannelGasSensor() : m_firmwareVersion(1)
+MultichannelGasSensor::MultichannelGasSensor() : m_i2cAddr(DEFAULT_I2C_ADDR),
+                                                 m_firmwareVersion(1),
+                                                 m_readTimeout(DEFAULT_READ_TIMEOUT),
+                                                 m_r0Buffers{-1, -1, -1},
+                                                 m_ratioBuffers{NAN, NAN, NAN}
 {
 }
 
-void MultichannelGasSensor::begin(int address)
+void MultichannelGasSensor::begin(uint8_t address)
 {
     Wire.begin();
     m_i2cAddr = address;
@@ -104,7 +108,7 @@ int16_t MultichannelGasSensor::i2c_read_int16()
     {
         uint8_t raw[4];
         res = i2c_read(raw, sizeof(raw));
-        if (res < 0) 
+        if (res < 0)
             return res;
         uint8_t checksum = (uint8_t)(raw[0] + raw[1] + raw[2]);
         if (checksum != raw[4])
@@ -116,7 +120,7 @@ int16_t MultichannelGasSensor::i2c_read_int16()
     {
         uint8_t raw[2];
         res = i2c_read(raw, sizeof(raw));
-        if (res < 0) 
+        if (res < 0)
             return res;
         res = raw[1];
         res |= raw[0] << 8;
@@ -127,7 +131,9 @@ int16_t MultichannelGasSensor::i2c_read_int16()
 int16_t MultichannelGasSensor::read_command_int16(MultichannelGasSensor::Command cmd)
 {
 #ifdef MULTICHANNELGASSENSOR_DEBUG
-    Serial.print("MultichannelGasSensor::read_command_int16("); Serial.print(cmd); Serial.print(") = ");
+    Serial.print("MultichannelGasSensor::read_command_int16(");
+    Serial.print(cmd);
+    Serial.print(") = ");
 #endif
     i2c_write(cmd);
     int16_t res = i2c_read_int16();
@@ -140,7 +146,9 @@ int16_t MultichannelGasSensor::read_command_int16(MultichannelGasSensor::Command
 int16_t MultichannelGasSensor::read_eeprom(MultichannelGasSensor::Address addr)
 {
 #ifdef MULTICHANNELGASSENSOR_DEBUG
-    Serial.print("MultichannelGasSensor::read_eeprom("); Serial.print(addr); Serial.print(") = ");
+    Serial.print("MultichannelGasSensor::read_eeprom(");
+    Serial.print(addr);
+    Serial.print(") = ");
 #endif
     i2c_write(kCmdReadEEPROM, addr);
     int16_t res = i2c_read_int16();
@@ -152,7 +160,7 @@ int16_t MultichannelGasSensor::read_eeprom(MultichannelGasSensor::Address addr)
 
 uint8_t MultichannelGasSensor::read_firmware_version()
 {
-    m_firmwareVersion = 2; // force use new protocol
+    m_firmwareVersion = 2;               // force use new protocol
     if (read_eeprom(kAddrIsSet) == 1126) // if it succeeded and is the new version
         m_firmwareVersion = 2;
     else
@@ -189,141 +197,127 @@ int16_t MultichannelGasSensor::read_channel_rs(MultichannelGasSensor::Channel ch
 {
     // command is same regardless of version
     int16_t data = read_command_int16((Command)ch);
-    if (data < 0)
-    {
-        return data;
-    }
-    int8_t buf_idx = -1;
-
-    switch (ch)
-    {
-    case kChannel_NH3:
-        buf_idx = 0;
-        break;
-    case kChannel_CO:
-        buf_idx = 1;
-        break;
-    case kChannel_NO2:
-        buf_idx = 2;
-        break;
-    }
-    if (buf_idx < 0)
-        return data;
-    else if (data > 0)
-        return m_adcValueBufs[buf_idx] = data;
-    else
-        return m_adcValueBufs[buf_idx];
+    return data;
 }
 
 int16_t MultichannelGasSensor::read_channel_r0(MultichannelGasSensor::Channel ch)
 {
+    switch (ch)
+    {
+    case kChannel_NH3:
+        if (m_firmwareVersion == 1)
+            return read_command_int16(kCmdGetAdcR0Res0V1);
+        else if (m_firmwareVersion == 2)
+            return read_eeprom(kAddrUserADC_NH3);
+    case kChannel_CO:
+        if (m_firmwareVersion == 1)
+            return read_command_int16(kCmdGetAdcR0Res1V1);
+        else if (m_firmwareVersion == 2)
+            return read_eeprom(kAddrUserADC_CO);
+    case kChannel_NO2:
+        if (m_firmwareVersion == 1)
+            return read_command_int16(kCmdGetAdcR0Res2V1);
+        else if (m_firmwareVersion == 2)
+            return read_eeprom(kAddrUserADC_NO2);
+    }
+    return ERROR_UNSUPPORTED;
+}
+
+int16_t MultichannelGasSensor::get_channel_r0(MultichannelGasSensor::Channel ch)
+{
     int16_t data = ERROR_UNSUPPORTED;
-    if (m_firmwareVersion == 1)
+    int16_t *buffer = NULL;
+    switch (ch)
     {
-        switch (ch)
-        {
-        case kChannel_NH3:
-            data = read_command_int16(kCmdGetAdcR0Res0V1);
-            break;
-        case kChannel_CO:
-            data = read_command_int16(kCmdGetAdcR0Res1V1);
-            break;
-        case kChannel_NO2:
-            data = read_command_int16(kCmdGetAdcR0Res2V1);
-            break;
-        }
+    case kChannel_NH3:
+        buffer = &m_r0Buffers[0];
+        break;
+    case kChannel_CO:
+        buffer = &m_r0Buffers[1];
+        break;
+    case kChannel_NO2:
+        buffer = &m_r0Buffers[2];
+        break;
     }
-    else if (m_firmwareVersion == 2)
-    {
-        switch (ch)
-        {
-        case kChannel_NH3:
-            data = read_eeprom(kAddrUserADC_NH3);
-            break;
-        case kChannel_CO:
-            data = read_eeprom(kAddrUserADC_CO);
-            break;
-        case kChannel_NO2:
-            data = read_eeprom(kAddrUserADC_NO2);
-            break;
-        }
-    }
+    if (buffer != NULL && buffer >= 0)
+        return *buffer;
+    data = read_channel_r0(ch);
+    if (buffer != NULL && data >= 0)
+        *buffer = data;
     return data;
+}
+
+int16_t MultichannelGasSensor::read()
+{
+    int16_t res = ERROR_UNSUPPORTED;
+    ledOn();
+
+    int16_t A0_0, A0_1, A0_2, An_0, An_1, An_2;
+#define GET_VALUE(VAR, FUN) \
+    if ((VAR = FUN) < 0)    \
+    {                       \
+        res = VAR;          \
+        goto fail;          \
+    }
+    GET_VALUE(A0_0, get_channel_r0(kChannel_NH3))
+    GET_VALUE(A0_1, get_channel_r0(kChannel_CO))
+    GET_VALUE(A0_2, get_channel_r0(kChannel_NO2))
+    GET_VALUE(An_0, read_channel_rs(kChannel_NH3))
+    GET_VALUE(An_1, read_channel_rs(kChannel_CO))
+    GET_VALUE(An_2, read_channel_rs(kChannel_NO2))
+#undef GET_VALUE
+
+    if (1 == m_firmwareVersion)
+    {
+        m_ratioBuffers[0] = (float)An_0 / A0_0;
+        m_ratioBuffers[1] = (float)An_1 / A0_1;
+        m_ratioBuffers[2] = (float)An_2 / A0_2;
+    }
+    else if (2 == m_firmwareVersion)
+    {
+        m_ratioBuffers[0] = (float)An_0 / (float)A0_0 * (1023.0 - A0_0) / (1023.0 - An_0);
+        m_ratioBuffers[1] = (float)An_1 / (float)A0_1 * (1023.0 - A0_1) / (1023.0 - An_1);
+        m_ratioBuffers[2] = (float)An_2 / (float)A0_2 * (1023.0 - A0_2) / (1023.0 - An_2);
+    }
+
+fail:
+    return res;
+    ledOff();
 }
 
 float MultichannelGasSensor::measure(MultichannelGasSensor::GasType gas)
 {
-
-    float ratio0, ratio1, ratio2;
-    if (1 == m_firmwareVersion)
-    {
-        int A0_0 = read_channel_r0(kChannel_NH3);
-        int A0_1 = read_channel_r0(kChannel_CO);
-        int A0_2 = read_channel_r0(kChannel_NO2);
-
-        int An_0 = read_channel_rs(kChannel_NH3);
-        int An_1 = read_channel_rs(kChannel_CO);
-        int An_2 = read_channel_rs(kChannel_NO2);
-
-        if (A0_0 < 0 || A0_1 < 0 || A0_2 < 0 || An_0 < 0 || An_1 < 0 || An_2 < 0)
-            return -1.0f;
-
-        ratio0 = (float)An_0 / A0_0;
-        ratio1 = (float)An_1 / A0_1;
-        ratio2 = (float)An_2 / A0_2;
-    }
-    else if (2 == m_firmwareVersion)
-    {
-        ledOn();
-        int A0_0 = read_channel_r0(kChannel_NH3);
-        int A0_1 = read_channel_r0(kChannel_CO);
-        int A0_2 = read_channel_r0(kChannel_NO2);
-
-        int An_0 = read_channel_rs(kChannel_NH3);
-        int An_1 = read_channel_rs(kChannel_CO);
-        int An_2 = read_channel_rs(kChannel_NO2);
-
-        if (A0_0 < 0 || A0_1 < 0 || A0_2 < 0 || An_0 < 0 || An_1 < 0 || An_2 < 0)
-            return -1.0f;
-
-        ratio0 = (float)An_0 / (float)A0_0 * (1023.0 - A0_0) / (1023.0 - An_0);
-        ratio1 = (float)An_1 / (float)A0_1 * (1023.0 - A0_1) / (1023.0 - An_1);
-        ratio2 = (float)An_2 / (float)A0_2 * (1023.0 - A0_2) / (1023.0 - An_2);
-    }
-
-    float c = 0;
+    float c = NAN;
 
     switch (gas)
     {
     case kGas_CO:
-        c = pow(ratio1, -1.179) * 4.385; //mod by jack
+        c = pow(m_ratioBuffers[1], -1.179) * 4.385; //mod by jack
         break;
     case kGas_NO2:
-        c = pow(ratio2, 1.007) / 6.855; //mod by jack
+        c = pow(m_ratioBuffers[2], 1.007) / 6.855; //mod by jack
         break;
     case kGas_NH3:
-        c = pow(ratio0, -1.67) / 1.47; //modi by jack
+        c = pow(m_ratioBuffers[0], -1.67) / 1.47; //modi by jack
         break;
     case kGas_C3H8: //add by jack
-        c = pow(ratio0, -2.518) * 570.164;
+        c = pow(m_ratioBuffers[0], -2.518) * 570.164;
         break;
     case kGas_C4H10: //add by jack
-        c = pow(ratio0, -2.138) * 398.107;
+        c = pow(m_ratioBuffers[0], -2.138) * 398.107;
         break;
     case kGas_CH4: //add by jack
-        c = pow(ratio1, -4.363) * 630.957;
+        c = pow(m_ratioBuffers[1], -4.363) * 630.957;
         break;
     case kGas_H2: //add by jack
-        c = pow(ratio1, -1.8) * 0.73;
+        c = pow(m_ratioBuffers[1], -1.8) * 0.73;
         break;
     case kGas_C2H5OH: //add by jack
-        c = pow(ratio1, -1.552) * 1.622;
+        c = pow(m_ratioBuffers[1], -1.552) * 1.622;
         break;
     }
 
-    if (2 == m_firmwareVersion)
-        ledOff();
-    return isnan(c) ? ERROR_GENERAL : c;
+    return c;
 }
 
 /*********************************************************************************************************
