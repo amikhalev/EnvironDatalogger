@@ -64,7 +64,7 @@ void Sensors::begin()
         else
             Serial.print(F("good"));
 #if DEBUG
-        Serial.print(F(". now = "));
+        Serial.print(F(". now="));
         DateTime now = rtc.now();
         print_datetime(now, Serial);
 #endif
@@ -80,15 +80,18 @@ void Sensors::update()
 void Sensors::read(SensorsData *data)
 {
     int16_t res;
+
+    debug("Sensors.read()...");
     dust.sample();
     res = gas.read();
     if (res < 0)
     {
-        Serial.print(F("MultichannelGasSensor::read() fail: "));
-        Serial.println(res);
+        info(F("MultichannelGasSensor::read() fail: "));
+        info(res);
+        infoln('.');
     }
 
-    data->time_micros = micros();
+    // data->time_micros = micros();
     data->time_rtc = rtc.now();
 
     data->dust_low_ratio_raw = dust.getLowRatio();
@@ -105,4 +108,5 @@ void Sensors::read(SensorsData *data)
     data->environment_temperature = environment.readTemperature();
     data->environment_humidity = environment.readHumidity();
     data->environment_pressure = environment.readPressure();
+    debugln();
 }

@@ -19,15 +19,20 @@
 
 #define TIME_DIFF(t1, t2) ((t1 > t2) ? (t1 - t2) : (t2 - t1))
 
+#define LOGFILE_DIRECTORY "ENVLOG"
+#define LOGFILE_FORMAT F("%03u%02u%02u.csv")
+
 // #define MULTICHANNELGASSENSOR_DEBUG 1
 // #define DEBUG 1
 
-#define info(...) Serial.print(__VA_ARGS__)
-#define infoln(...) Serial.println(__VA_ARGS__)
+#define DSERIAL Serial
+
+#define info(...) DSERIAL.print(__VA_ARGS__)
+#define infoln(...) DSERIAL.println(__VA_ARGS__)
 
 #if DEBUG
-#define debug(...) Serial.print(__VA_ARGS__)
-#define debugln(...) Serial.print(__VA_ARGS__)
+#define debug(...) DSERIAL.print(__VA_ARGS__)
+#define debugln(...) DSERIAL.println(__VA_ARGS__)
 #else
 #define debug(...)
 #define debugln(...)

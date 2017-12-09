@@ -6,6 +6,8 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+#include "config.h"
+
 #define PRINTF_MAX_LEN 100
 
 class _Printf_Helper : public Printable
@@ -41,6 +43,10 @@ inline _Printf_Helper::_Printf_Helper(const __FlashStringHelper *format, ...)
     va_end(args);
 }
 
-#define PRINTF(fmt, ...) _Printf_Helper(F(fmt), __VA_ARGS__)
+#define PRINTF(...) _Printf_Helper(__VA_ARGS__)
+#define PRINTF_P(fmt, ...) PRINTF(F(fmt), __VA_ARGS__)
+
+#define infof(FORMAT, ...) info(PRINTF_P(FORMAT, ##__VA_ARGS__))
+#define debugf(FORMAT, ...) debug(PRINTF(FORMAT, ##__VA_ARGS__))
 
 #endif // __PRINTF_HPP__
