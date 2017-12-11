@@ -22,6 +22,8 @@
 #define LOGFILE_DIRECTORY "ENVLOG"
 #define LOGFILE_FORMAT F("%03u%02u%02u.csv")
 
+#define COMMAND_MAX_LEN 20
+
 // #define MULTICHANNELGASSENSOR_DEBUG 1
 // #define DEBUG 1
 
