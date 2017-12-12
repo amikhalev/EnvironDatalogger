@@ -7,11 +7,10 @@
 
 struct SensorsData
 {
-  public:                     // fields
-
+  public:                 // fields
     uint32_t time_micros; // current micros() time
     DateTime time_rtc;
-    
+
     float dust_low_ratio_raw; // percentage from 0-1
     float dust_concentration; // particles / 0.01 ft^3
 

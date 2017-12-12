@@ -13,7 +13,7 @@ class DustSensor
 
     enum : uint32_t
     {
-        DEFAULT_SAMPLING_INTERVAL = (uint32_t) 10 * 1000 * 1000 // 10 seconds
+        DEFAULT_SAMPLING_INTERVAL = (uint32_t)10 * 1000 * 1000 // 10 seconds
     };
 
     enum Error : int8_t

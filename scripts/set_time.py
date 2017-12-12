@@ -10,7 +10,7 @@ import serial
 
 class SetTime:
     def __init__(self):
-        self.ser = serial.Serial('/dev/tty.usbmodem1421', 115200)
+        self.ser = serial.Serial('/dev/tty.usbmodem1411', 115200)
         self.reader_running = None
         self.reader_thread = None
 
@@ -42,6 +42,7 @@ class SetTime:
             write_bin(b"t")
             write_bin(time_bin)
             write_bin(b"\0\0\0\0")
+            self.ser.flush()
 
             while True:
                 time.sleep(1)

@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <avr/pgmspace.h>
 #include <FreeStack.h>
+#include <EEPROM.h>
 
 #include "config.h"
 #include "printf.hpp"
@@ -14,7 +15,7 @@
 //////////////////////
 Sensors sensors;
 SensorsData sensor_data;
-SdFiles& sd_files = SdFiles::instance;
+SdFiles &sd_files = SdFiles::instance;
 uint32_t last_sample;
 
 char serial_command;
@@ -25,43 +26,83 @@ int16_t serial_command_len;
 // Operational functions //
 ///////////////////////////
 
-void process_serial_command() {
-    switch (serial_command) {
-        case 't': {
-            uint16_t year; uint8_t month, day, hour, min, sec;
-            year = serial_command_data[0];
-            year |= serial_command_data[1] << 8;
-            month = serial_command_data[2];
-            day = serial_command_data[3];
-            hour = serial_command_data[4];
-            min = serial_command_data[5];
-            sec = serial_command_data[6];
-            DateTime new_time(year, month, day, hour, min, sec);
-            sensors.rtc.adjust(new_time);
+void process_serial_command()
+{
+    switch (serial_command)
+    {
+    case 't':
+    {
+        uint16_t year;
+        uint8_t month, day, hour, min, sec;
+        year = serial_command_data[0];
+        year |= serial_command_data[1] << 8;
+        month = serial_command_data[2];
+        day = serial_command_data[3];
+        hour = serial_command_data[4];
+        min = serial_command_data[5];
+        sec = serial_command_data[6];
+        DateTime new_time(year, month, day, hour, min, sec);
+        sensors.rtc.adjust(new_time);
 #if DEBUG
-            debug("adjust time to "); print_datetime(new_time, DSERIAL); debugln();
+        debug("adjust time to ");
+        print_datetime(new_time, DSERIAL);
+        debugln();
 #endif
-            break;
-        }
-        case 'u': {
-            DateTime now = sensors.rtc.now();
-            info("current time is "); print_datetime(now, DSERIAL); infoln();
-            break;
-        }
-        case '\0':
-            break;
-        default:
-            debugf("invalid serial command %c\n", serial_command);
-            break;
+        break;
+    }
+    case 'u':
+    {
+        DateTime now = sensors.rtc.now();
+        info("current time is ");
+        print_datetime(now, DSERIAL);
+        infoln();
+        break;
+    }
+    case '\0':
+        break;
+    default:
+        debugf("invalid serial command %c\n", serial_command);
+        break;
     }
 }
 
-uint16_t get_serial_command_len(/* char serial_command */) {
-    switch (serial_command) {
-        case 't': return 7;
-        case 'u': return 0;
-        case '\0': return 0;
-        default: return 0;
+uint16_t get_serial_command_len(/* char serial_command */)
+{
+    switch (serial_command)
+    {
+    case 't':
+        return 7;
+    case 'u':
+        return 0;
+    case '\0':
+        return 0;
+    default:
+        return 0;
+    }
+}
+
+void read_serial()
+{
+    while (Serial.available())
+    {
+        if (serial_command_len < 0)
+        {
+            serial_command = (char)Serial.read();
+            serial_command_len = 0;
+            continue;
+        }
+        if (serial_command_len >= COMMAND_MAX_LEN)
+        {
+            // something weird happen, throw away all data and hope it fixes itself
+            debugln("serial input buffer overflow");
+            serial_command_len = 0;
+        }
+        serial_command_data[serial_command_len++] = (char)Serial.read();
+        if (serial_command_len >= get_serial_command_len())
+        {
+            process_serial_command();
+            serial_command_len = 0;
+        }
     }
 }
 
@@ -70,7 +111,7 @@ void setup()
     serial_command_len = -1;
 
     Serial.begin(SERIAL_BAUD);
-    infof("EnvironDatalogger v%d setup", 1);
+    infoln(F("EnvironDatalogger v" FIRMWARE_VERSION " setup"));
     sensors.begin();
     last_sample = micros();
     sensor_data.time_rtc = sensors.rtc.now();
@@ -79,15 +120,14 @@ void setup()
 
     sd_files.begin(&sensor_data.time_rtc);
 
-    infof("FreeStack: %u\n", FreeStack());
-
     sensor_data.print_csv_header(Serial);
-    if (sd_files.isOpen()) {
+    if (sd_files.isOpen())
+    {
         sensor_data.print_csv_header(sd_files.file());
     }
-}
 
-void read_serial();
+    infof("FreeStack: %u\n", FreeStack());
+}
 
 void loop()
 {
@@ -103,38 +143,21 @@ void loop()
         // debugln("Printing sensor data: ");
         // sensor_data.print_human(Serial);
         sensor_data.print_csv(Serial);
-        if (sd_files.isOpen()) {
+        if (sd_files.isOpen())
+        {
             sensor_data.print_csv(sd_files.file());
             debug(F("SdFiles.sync..."));
             bool res = sd_files.sync();
-            if (!res) {
+            if (!res)
+            {
                 infoln(F("SdFiles.sync fail!"));
-            } else {
+            }
+            else
+            {
                 debugln(F("good"));
             }
         }
 
         last_sample = sensor_data.time_micros;
-    }
-}
-
-void read_serial() {
-    while (Serial.available()) {
-        char inChar = (char) Serial.read();
-        if (serial_command_len < 0) { 
-            serial_command = (char) Serial.read();
-            serial_command_len = 0;
-            continue;
-        }
-        if (serial_command_len >= COMMAND_MAX_LEN) {
-            // something weird happen, throw away all data and hope it fixes itself
-            debugln("serial input buffer overflow");
-            serial_command_len = 0;
-        }
-        serial_command_data[serial_command_len++] = inChar;
-        if (serial_command_len >= get_serial_command_len()) {
-            process_serial_command();
-            serial_command_len = 0;
-        }
     }
 }

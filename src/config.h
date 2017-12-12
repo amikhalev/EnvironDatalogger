@@ -4,6 +4,10 @@
 #ifndef __CONFIG_H__
 #define __CONFIG_H__
 
+#define FIRMWARE_VERSION
+
+#define EEPROM_DEVICE_NUMBER (1)
+
 #define SERIAL_BAUD (115200)
 
 #define DUST_PIN (2)

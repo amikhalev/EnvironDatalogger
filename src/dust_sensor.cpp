@@ -61,7 +61,8 @@ volatile void DustSensor::sample()
 volatile void DustSensor::update()
 {
     uint32_t now = micros();
-    if (now >= mv_last_sample + m_samplingInterval) {
+    if (now >= mv_last_sample + m_samplingInterval)
+    {
         sample();
     }
 }

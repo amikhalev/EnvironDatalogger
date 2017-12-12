@@ -41,7 +41,6 @@
 
 #include <stdint.h>
 
-
 class MultichannelGasSensor
 {
   public:
@@ -52,7 +51,7 @@ class MultichannelGasSensor
 
     enum : uint32_t
     {
-        DEFAULT_READ_TIMEOUT = (uint32_t) 100 * 1000 // 100 ms
+        DEFAULT_READ_TIMEOUT = (uint32_t)100 * 1000 // 100 ms
     };
 
     enum Address : uint8_t
@@ -162,7 +161,7 @@ class MultichannelGasSensor
     int16_t get_channel_r0(Channel ch);
 
   public:
-    MultichannelGasSensor(); 
+    MultichannelGasSensor();
 
     /** Setup gas sensor on i2c address */
     int16_t begin(uint8_t address);

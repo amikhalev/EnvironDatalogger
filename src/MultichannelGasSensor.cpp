@@ -534,7 +534,7 @@ void MultichannelGasSensor::factory_setting()
 
         if (error == 0)
         {
-            // change i2c to 0x04
+        // change i2c to 0x04
 
 #ifdef MULTICHANNELGASSENSOR_DEBUG
             Serial.print(F("I2C address is: 0x"));

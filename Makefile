@@ -55,11 +55,11 @@ disassemble: $(OUTPUT_LSS)
 
 build: $(OUTPUT_HEX)
 
-pre_clean:
+clean: 
 	@echo === Removing build files ===
-
-clean: arduino_clean bme280_clean sdfat_clean rtclib_clean
 	$(RM) $(OBJS) $(DEPS) $(OUTPUT_ELF) $(OUTPUT_HEX) $(OUTPUT_LSS)
+
+lib_clean: arduino_clean bme280_clean sdfat_clean rtclib_clean
 
 size: $(OUTPUT_ELF)
 	@echo === Printing output size ===

@@ -13,12 +13,12 @@ LIB_DIR     :=lib
 BUILD_DIR   :=build
 BUILD_LIB_DIR :=$(BUILD_DIR)/lib
 
-GCC_FLAGS   :=-Wall -Os -g -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -fno-exceptions -funsigned-char \
+override GCC_FLAGS   +=-Wall -Os -g -fpack-struct -fshort-enums -ffunction-sections -fdata-sections -fno-exceptions -funsigned-char \
 -funsigned-bitfields -flto -mmcu=$(MCU) \
 -DF_CPU=$(F_CPU) -DARDUINO_ARCH_AVR -DARDUINO_AVR_UNO -DARDUINO=$(ARDUINO)
-CFLAGS      :=$(GCC_FLAGS) -std=c99  
-CXXFLAGS    :=$(GCC_FLAGS) -fno-threadsafe-statics -fpermissive -felide-constructors -fno-exceptions -std=gnu++11
-ASFLAGS     :=-x assembler-with-cpp $(GCC_FLAGS)
+CFLAGS      =$(GCC_FLAGS) -std=c99  
+CXXFLAGS    =$(GCC_FLAGS) -fno-threadsafe-statics -fpermissive -felide-constructors -fno-exceptions -std=gnu++11
+ASFLAGS     =-x assembler-with-cpp $(GCC_FLAGS)
 
 AVRDUDE_PORT =$(shell ./scripts/find_port.sh)
 
