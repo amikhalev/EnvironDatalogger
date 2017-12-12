@@ -13,62 +13,62 @@ Sensors::Sensors() : dust(DustSensor::instance), // use the singleton instance
 
 void Sensors::begin()
 {
-    Serial.print(F("DustSensor::begin..."));
+    debug(F("DustSensor::begin..."));
     int16_t res;
     res = dust.begin(DUST_PIN);
     if (res < 0)
     {
-        Serial.print(F("fail: "));
-        Serial.println(res);
+        info(F("dust fail: "));
+        infoln(res);
     }
     else
     {
-        Serial.println(F("good"));
+        debugln(F("good"));
     }
 
-    Serial.print(F("MultichannelGasSensor::begin..."));
+    debug(F("MultichannelGasSensor::begin..."));
     res = gas.begin(GAS_ADDR);
     gas.powerOn();
     if (res < 0)
     {
-        Serial.print(F("fail: "));
-        Serial.println(res);
+        info(F("gas fail: "));
+        infoln(res);
     }
     else
     {
-        Serial.print(F("good. firmwareVersion="));
-        Serial.println(res);
+        debug(F("good. firmwareVersion="));
+        debugln(res);
     }
 
-    Serial.print(F("Adafruit_BME280::begin..."));
+    debug(F("Adafruit_BME280::begin..."));
     res = environment.begin(BME280_ADDR, &Wire);
     if (!res)
     {
-        Serial.println(F("fail"));
+        infoln(F("fail"));
     }
     else
     {
-        Serial.println(F("good"));
+        debugln(F("good"));
     }
 
-    Serial.print(F("RTC_DS1307::begin..."));
+    debug(F("RTC_DS1307::begin..."));
     res = rtc.begin();
     if (!res)
     {
-        Serial.println(F("fail"));
+        debugln(F("fail"));
     }
     else
     {
         if (!rtc.isrunning())
-            Serial.print(F("not running"));
+            infoln(F("rtc not running"));
         else
-            Serial.print(F("good"));
+            debug(F("good"));
 #if DEBUG
-        Serial.print(F(". now="));
+        debug(F(". now="));
         DateTime now = rtc.now();
         print_datetime(now, Serial);
 #endif
-        Serial.println();
+        debugln();
     }
 }
 
