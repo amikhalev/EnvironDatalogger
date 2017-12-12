@@ -1,6 +1,6 @@
 RTCLIB_DIR      :=$(LIB_DIR)/RTClib
 RTCLIB_BUILD    :=$(BUILD_LIB_DIR)/RTClib
-RTCLIB_MKDEPS   :=Makefile lib/RTClib.mk
+# RTCLIB_MKDEPS   :=Makefile lib/RTClib.mk
 RTCLIB_INCLUDES :=-I $(RTCLIB_DIR)
 
 RTCLIB_CPP_SRCS :=$(RTCLIB_DIR)/RTClib.cpp

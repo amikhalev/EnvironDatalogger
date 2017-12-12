@@ -1,6 +1,6 @@
 SDFAT_DIR      :=$(LIB_DIR)/SDFat
 SDFAT_BUILD    :=$(BUILD_LIB_DIR)/SDFat
-SDFAT_MKDEPS   :=Makefile lib/SDFat.mk
+# SDFAT_MKDEPS   :=Makefile lib/SDFat.mk
 SDFAT_INCLUDES :=-I $(SDFAT_DIR)/src
 
 SDFAT_CPP_SRCS :=$(wildcard $(SDFAT_DIR)/src/*.cpp) $(wildcard $(SDFAT_DIR)/src/SdCard/*.cpp) $(wildcard $(SDFAT_DIR)/src/FatLib/*.cpp)

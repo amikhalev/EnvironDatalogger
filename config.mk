@@ -20,6 +20,8 @@ CFLAGS      :=$(GCC_FLAGS) -std=c99
 CXXFLAGS    :=$(GCC_FLAGS) -fno-threadsafe-statics -fpermissive -felide-constructors -fno-exceptions -std=gnu++11
 ASFLAGS     :=-x assembler-with-cpp $(GCC_FLAGS)
 
+AVRDUDE_PORT =$(shell ./scripts/find_port.sh)
+
 # Tool configs
 RM          =@rm -f
 MKDIR       =@mkdirp() { [ -d "$$1" ] || echo "==> mkdir creating directory $$1"; mkdir -p $$@; }; mkdirp

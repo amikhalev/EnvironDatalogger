@@ -1,7 +1,7 @@
 ADA_SENSOR_DIR  :=$(LIB_DIR)/Adafruit_Sensor
 BME280_DIR      :=$(LIB_DIR)/Adafruit_BME280_Library
 BME280_BUILD    :=$(BUILD_LIB_DIR)/Adafruit_BME280_Library
-BME280_MKDEPS   :=Makefile lib/Adafruit_BME280.mk
+# BME280_MKDEPS   :=Makefile lib/Adafruit_BME280.mk
 BME280_INCLUDES :=-I $(BME280_DIR) -I $(ADA_SENSOR_DIR)
 
 BME280_CPP_SRCS :=$(BME280_DIR)/Adafruit_BME280.cpp

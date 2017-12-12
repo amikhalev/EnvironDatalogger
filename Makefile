@@ -67,7 +67,7 @@ size: $(OUTPUT_ELF)
 
 upload: $(OUTPUT_HEX)
 	@echo === Uploading "$(OUTPUT_HEX)" to the AVR using "$(AVRDUDE)" ===
-	$(AVRDUDE) -p $(MCU) -c $(PROGRAMMER) -U flash:w:$(OUTPUT_HEX)
+	$(AVRDUDE) -p $(MCU) -c $(PROGRAMMER) -P $(AVRDUDE_PORT) $(AVRDUDE_FLAGS) -U flash:w:$(OUTPUT_HEX)
 
 # File targets
 $(BUILD_DIR):

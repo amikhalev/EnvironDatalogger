@@ -1,12 +1,12 @@
 ARDUINO_DIR   :=$(LIB_DIR)/Arduino/hardware/arduino/avr
 ARDUINO_BUILD :=$(BUILD_LIB_DIR)/Arduino
-
-ARDUINO_MKDEPS :=Makefile lib/Arduino.mk
+# ARDUINO_MKDEPS :=Makefile lib/Arduino.mk
 
 ARDUINO_INCLUDES :=-I $(ARDUINO_DIR)/cores/arduino -I$(ARDUINO_DIR)/variants/standard \
 -I$(ARDUINO_DIR)/libraries/EEPROM/src \
 -I$(ARDUINO_DIR)/libraries/Wire/src \
 -I$(ARDUINO_DIR)/libraries/SPI/src
+
 ARDUINO_CPP_SRCS :=$(ARDUINO_DIR)/cores/arduino/abi.cpp \
 $(ARDUINO_DIR)/cores/arduino/HardwareSerial.cpp \
 $(ARDUINO_DIR)/cores/arduino/HardwareSerial0.cpp \
