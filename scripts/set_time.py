@@ -1,13 +1,54 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python2
 
-import datetime, sys, struct, os
+import datetime
+import sys
+import struct
+import time
+import threading
 
-time = datetime.datetime.now()
+import serial
 
-time_bin = struct.pack("<HBBBBB", time.year, time.month,
-                       time.day, time.hour, time.minute, time.second)
+class SetTime:
+    def __init__(self):
+        self.ser = serial.Serial('/dev/tty.usbmodem1421', 115200)
+        self.reader_running = None
+        self.reader_thread = None
 
-write_bin = sys.stdout.buffer.write
-write_bin(b"t")
-write_bin(time_bin)
-write_bin(b"\n")
+    def start_reader(self):
+        self.reader_running = True
+        self.reader_thread = threading.Thread(target=self.reader, name="reader")
+        self.reader_thread.daemon = True
+        self.reader_thread.start()
+
+    def reader(self):
+        while self.reader_running:
+            try:
+                data = self.ser.read(1)
+                sys.stdout.write(data)
+            except serial.SerialException:
+                self.reader_running = False
+                raise
+
+    def set_time(self):
+        try:
+            self.start_reader()
+            time.sleep(5)
+
+            t = datetime.datetime.now()
+            time_bin = struct.pack("<HBBBBB", t.year, t.month, t.day, t.hour, t.minute, t.second)
+
+            print("==> setting time to {}".format(t))
+            write_bin = self.ser.write
+            write_bin(b"t")
+            write_bin(time_bin)
+            write_bin(b"\0\0\0\0")
+
+            while True:
+                time.sleep(1)
+        except KeyboardInterrupt:
+            print("interrupt")
+            self.reader_running = False
+            self.ser.cancel_read()
+
+if __name__ == "__main__":
+    SetTime().set_time()

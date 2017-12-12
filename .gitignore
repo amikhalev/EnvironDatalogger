@@ -2,3 +2,10 @@
 .piolibdeps
 .vscode
 .vscode/c_cpp_properties.json
+
+build/**/*.a
+build/**/*.o
+build/**/*.d
+build/*.elf
+build/*.hex
+build/*.lss

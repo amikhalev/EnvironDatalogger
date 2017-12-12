@@ -1,0 +1,15 @@
+[submodule "lib/Arduino"]
+	path = lib/Arduino
+	url = https://github.com/arduino/Arduino.git
+[submodule "lib/Adafruit_Sensor"]
+	path = lib/Adafruit_Sensor
+	url = https://github.com/adafruit/Adafruit_Sensor.git
+[submodule "lib/Adafruit_BME280_Library"]
+	path = lib/Adafruit_BME280_Library
+	url = https://github.com/adafruit/Adafruit_BME280_Library.git
+[submodule "lib/SDFat"]
+	path = lib/SDFat
+	url = https://github.com/greiman/SdFat.git
+[submodule "lib/RTClib"]
+	path = lib/RTClib
+	url = https://github.com/adafruit/RTClib.git

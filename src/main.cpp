@@ -39,8 +39,13 @@ void process_serial_command() {
             DateTime new_time(year, month, day, hour, min, sec);
             sensors.rtc.adjust(new_time);
 #if DEBUG
-            debug("adjust time to "); print_datetime(new_time); debugln();
+            debug("adjust time to "); print_datetime(new_time, DSERIAL); debugln();
 #endif
+            break;
+        }
+        case 'u': {
+            DateTime now = sensors.rtc.now();
+            info("current time is "); print_datetime(now, DSERIAL); infoln();
             break;
         }
         case '\0':
@@ -54,6 +59,7 @@ void process_serial_command() {
 uint16_t get_serial_command_len(/* char serial_command */) {
     switch (serial_command) {
         case 't': return 7;
+        case 'u': return 0;
         case '\0': return 0;
         default: return 0;
     }
