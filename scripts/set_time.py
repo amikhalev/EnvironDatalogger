@@ -1,16 +1,18 @@
 #!/usr/bin/env python2
 
 import datetime
+import os
 import sys
 import struct
+import subprocess
 import time
 import threading
 
 import serial
 
 class SetTime:
-    def __init__(self):
-        self.ser = serial.Serial('/dev/tty.usbmodem1411', 115200)
+    def __init__(self, port, baud = 115200):
+        self.ser = serial.Serial(port, baud)
         self.reader_running = None
         self.reader_thread = None
 
@@ -52,4 +54,5 @@ class SetTime:
             self.ser.cancel_read()
 
 if __name__ == "__main__":
-    SetTime().set_time()
+    port = subprocess.check_output(["bash", os.path.dirname(__file__) + "/find_port.sh"]).splitlines()[0]
+    SetTime(port).set_time()
