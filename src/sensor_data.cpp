@@ -1,5 +1,6 @@
 #include "sensor_data.hpp"
 
+#include "config.h"
 #include "datetime_util.hpp"
 
 void SensorsData::reset()
@@ -25,15 +26,17 @@ void SensorsData::reset()
 
 void SensorsData::print_human(Print &output)
 {
-#define PRINT_VALUE(key, units)        \
-    output.print(F("-> " #key " = ")); \
-    if (this->key >= 0)                \
-        output.print(this->key);       \
-    else                               \
-        output.print(F("invalid"));    \
+#define PRINT_VALUE(key, units)                   \
+    output.print(F("-> " #key " = "));            \
+    if (this->key >= 0)                           \
+        output.print(this->key, FLOAT_PRECISION); \
+    else                                          \
+        output.print(F("invalid"));               \
     output.println(F(units));
 
-    PRINT_VALUE(time_micros, "μs")
+    output.print(F("-> time_micros = "));
+    output.print(time_micros);
+    output.println(F("μs"));
     output.print(F("-> time_rtc = "));
     print_datetime(time_rtc, output);
     output.println();
@@ -59,29 +62,29 @@ void SensorsData::print_csv(Print &output)
     output.print(',');
     print_datetime(time_rtc, output);
     output.print(',');
-    output.print(dust_low_ratio_raw);
+    output.print(dust_low_ratio_raw, FLOAT_PRECISION);
     output.print(',');
-    output.print(dust_concentration);
+    output.print(dust_concentration, FLOAT_PRECISION);
     output.print(',');
-    output.print(gas_concentration_nh3);
+    output.print(gas_concentration_nh3, FLOAT_PRECISION);
     output.print(',');
-    output.print(gas_concentration_co);
+    output.print(gas_concentration_co, FLOAT_PRECISION);
     output.print(',');
-    output.print(gas_concentration_no2);
+    output.print(gas_concentration_no2, FLOAT_PRECISION);
     output.print(',');
-    output.print(gas_concentration_c3h8);
+    output.print(gas_concentration_c3h8, FLOAT_PRECISION);
     output.print(',');
-    output.print(gas_concentration_c4h10);
+    output.print(gas_concentration_c4h10, FLOAT_PRECISION);
     output.print(',');
-    output.print(gas_concentration_h2);
+    output.print(gas_concentration_h2, FLOAT_PRECISION);
     output.print(',');
-    output.print(gas_concentration_c2h5oh);
+    output.print(gas_concentration_c2h5oh, FLOAT_PRECISION);
     output.print(',');
-    output.print(environment_temperature);
+    output.print(environment_temperature, FLOAT_PRECISION);
     output.print(',');
-    output.print(environment_humidity);
+    output.print(environment_humidity, FLOAT_PRECISION);
     output.print(',');
-    output.print(environment_pressure);
+    output.print(environment_pressure, FLOAT_PRECISION);
     output.println();
 }
 

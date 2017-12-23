@@ -28,6 +28,8 @@
 
 #define COMMAND_MAX_LEN 20
 
+#define FLOAT_PRECISION 4
+
 // #define MULTICHANNELGASSENSOR_DEBUG 1
 // #define DEBUG 1
 
