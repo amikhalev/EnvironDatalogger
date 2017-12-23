@@ -69,6 +69,9 @@ upload: $(OUTPUT_HEX)
 	@echo === Uploading "$(OUTPUT_HEX)" to the AVR using "$(AVRDUDE)" ===
 	$(AVRDUDE) -p $(MCU) -c $(PROGRAMMER) -P $(AVRDUDE_PORT) $(AVRDUDE_FLAGS) -U flash:w:$(OUTPUT_HEX)
 
+monitor:
+	miniterm.py $(AVRDUDE_PORT) 115200
+
 # File targets
 $(BUILD_DIR):
 	@echo === Creating "$(BUILD_DIR)" directory ====

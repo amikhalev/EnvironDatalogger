@@ -1,8 +1,10 @@
 #/bin/bash
 
-ports=( $(shopt -s extglob && echo /dev/{tty.usbmodem*,ttyACM*}) )
+shopt -s extglob
+port_pattern="/dev/*(tty.usbmodem*|ttyACM*)"
+ports="$port_pattern"
 idx=${1:-0}
-port=${ports[$idx]}
+port=$(echo ${ports[$idx]})
 
 if [ ! -e "$port" ]; then
     echo "No serial port(s) found"
