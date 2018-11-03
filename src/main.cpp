@@ -66,7 +66,7 @@ void process_serial_command()
     }
 }
 
-uint16_t get_serial_command_len(/* char serial_command */)
+int16_t get_serial_command_len(/* char serial_command */)
 {
     switch (serial_command)
     {

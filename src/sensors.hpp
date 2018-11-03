@@ -15,7 +15,7 @@ struct SensorsData;
 class Sensors
 {
   public: // fields
-    DustSensor &dust;
+    DustSensor *dust;
     MultichannelGasSensor gas;
     Adafruit_BME280 environment;
     RTC_DS1307 rtc;

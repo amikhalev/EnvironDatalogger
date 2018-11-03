@@ -23,7 +23,7 @@ class DustSensor
     };
 
   private:
-    uint8_t m_pin;
+    int8_t m_pin;
     uint32_t m_samplingInterval;
 
     volatile uint32_t mv_last_sample;
@@ -57,17 +57,17 @@ class DustSensor
     /**
      * Collects a sample right now
      */
-    volatile void sample();
+    void sample() volatile;
 
     /**
      * Collect a sample if the sampling interval has ellapsed
      */
-    volatile void update();
+    void update() volatile;
 
     void end();
 
-    inline const float getLowRatio() { return m_low_ratio; }
-    inline const float getConcentration() { return m_concentration; }
+    inline float getLowRatio() const { return m_low_ratio; }
+    inline float getConcentration() const { return m_concentration; }
 };
 
 extern DustSensor dust_sensor;

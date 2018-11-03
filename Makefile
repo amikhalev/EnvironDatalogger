@@ -34,7 +34,7 @@ INCLUDES	:=-I $(SRC_DIR)
 -include lib/SDFat.mk
 -include lib/RTClib.mk
 
-LIBS :=$(ARDUINO_LIB) $(BME280_LIB) $(SDFAT_LIB) $(RTCLIB_LIB)
+LIB_OBJS :=$(ARDUINO_OBJS) $(BME280_OBJS) $(SDFAT_OBJS) $(RTCLIB_OBJS)
 INCLUDES +=$(ARDUINO_INCLUDES) $(BME280_INCLUDES) $(SDFAT_INCLUDES) $(RTCLIB_INCLUDES)
 
 # Phony targets
@@ -48,7 +48,7 @@ config:
 	@echo CFLAGS=$(CFLAGS)
 	@echo CXXFLAGS=$(CXXFLAGS)
 	@echo ASFLAGS=$(ASFLAGS)
-	@echo LIBS=$(LIBS)
+	@echo LIB_OBJS=$(LIB_OBJS)
 	@echo INCLUDES=$(INCLUDES)
 
 disassemble: $(OUTPUT_LSS)
@@ -57,9 +57,11 @@ build: $(OUTPUT_HEX)
 
 clean: 
 	@echo === Removing build files ===
-	$(RM) $(OBJS) $(DEPS) $(OUTPUT_ELF) $(OUTPUT_HEX) $(OUTPUT_LSS)
+	$(RM) $(OBJS) $(DEPS) $(OUTPUT_ELF) $(OUTPUT_HEX) $(OUTPUT_LSS) 
+	$(RM) -r $(BUILD_DIR)/$(SRC_DIR)
 
 lib_clean: arduino_clean bme280_clean sdfat_clean rtclib_clean
+	$(RM) -r $(BUILD_DIR)/$(LIB_DIR)
 
 size: $(OUTPUT_ELF)
 	@echo === Printing output size ===
@@ -79,10 +81,10 @@ $(BUILD_DIR):
 
 $(BUILD_DIR)/$(SRC_DIR)/%.cpp.o: $(SRC_DIR)/%.cpp
 	$(MKDIR) $(dir $@)
-	$(CXX) -o "$@" $(INCLUDES) -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -c "$<"
+	$(CXX) "$@" $(INCLUDES) -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -c "$<"
 
-$(OUTPUT_ELF): $(OBJS) $(LIBS)
-	$(LD) -o "$(OUTPUT_ELF)" -Os -mmcu=$(MCU) -Wl,--gc-sections -flto -fuse-linker-plugin $(OBJS) -Wl,--start-group $(LIBS) -Wl,--end-group
+$(OUTPUT_ELF): $(OBJS) $(LIB_OBJS)
+	$(ELF) "$(OUTPUT_ELF)" $(OBJS) $(LIB_OBJS)
 	
 $(OUTPUT_HEX): $(OUTPUT_ELF)
 	@echo === Copying binary to "$(OUTPUT_HEX)" in intel hex format ====

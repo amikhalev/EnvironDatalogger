@@ -47,7 +47,7 @@ int8_t DustSensor::begin(uint8_t pin)
     return SUCCESS;
 }
 
-volatile void DustSensor::sample()
+void DustSensor::sample() volatile
 {
     uint32_t now = micros();
     uint32_t dust_sample_duration = TIME_DIFF(now, mv_last_sample);
@@ -58,7 +58,7 @@ volatile void DustSensor::sample()
     mv_low_accumulator = 0;
 }
 
-volatile void DustSensor::update()
+void DustSensor::update() volatile
 {
     uint32_t now = micros();
     if (now >= mv_last_sample + m_samplingInterval)

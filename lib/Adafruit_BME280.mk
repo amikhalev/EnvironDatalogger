@@ -26,7 +26,7 @@ bme280_clean:
 
 $(BME280_BUILD)/%.cpp.o: $(BME280_DIR)/%.cpp $(BME280_MKDEPS)
 	$(MKDIR) $(dir $@)
-	$(CXX) -o "$@" $(ARDUINO_INCLUDES) $(BME280_INCLUDES) -c "$<"
+	$(CXX) "$@" $(ARDUINO_INCLUDES) $(BME280_INCLUDES) -c "$<"
 
 $(BME280_LIB): $(BME280_OBJS) $(BME280_MKDEPS)
 	$(AR) rc $(BME280_LIB) $(BME280_OBJS)

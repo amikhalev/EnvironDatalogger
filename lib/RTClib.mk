@@ -25,7 +25,7 @@ rtclib_clean:
 
 $(RTCLIB_BUILD)/%.cpp.o: $(RTCLIB_DIR)/%.cpp $(RTCLIB_MKDEPS)
 	$(MKDIR) $(dir $@)
-	$(CXX) -o "$@" $(ARDUINO_INCLUDES) $(RTCLIB_INCLUDES) -c "$<"
+	$(CXX) "$@" $(ARDUINO_INCLUDES) $(RTCLIB_INCLUDES) -c "$<"
 
 $(RTCLIB_LIB): $(RTCLIB_OBJS) $(RTCLIB_MKDEPS)
 	$(AR) rc $(RTCLIB_LIB) $(RTCLIB_OBJS)

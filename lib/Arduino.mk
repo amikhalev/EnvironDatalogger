@@ -1,4 +1,4 @@
-ARDUINO_DIR   :=$(LIB_DIR)/Arduino/hardware/arduino/avr
+ARDUINO_DIR   :=$(LIB_DIR)/ArduinoCore
 ARDUINO_BUILD :=$(BUILD_LIB_DIR)/Arduino
 # ARDUINO_MKDEPS :=Makefile lib/Arduino.mk
 
@@ -55,15 +55,15 @@ arduino_clean:
 
 $(ARDUINO_BUILD)/%.cpp.o: $(ARDUINO_DIR)/%.cpp $(ARDUINO_MKDEPS)
 	$(MKDIR) $(dir $@)
-	$(CXX) -o "$@" $(ARDUINO_INCLUDES) -c "$<"
+	$(CXX) "$@" $(ARDUINO_INCLUDES) -c "$<"
 
 $(ARDUINO_BUILD)/%.c.o: $(ARDUINO_DIR)/%.c $(ARDUINO_MKDEPS)
 	$(MKDIR) $(dir $@)
-	$(CC) -o "$@" $(ARDUINO_INCLUDES) -c "$<"
+	$(CC) "$@" $(ARDUINO_INCLUDES) -c "$<"
 
 $(ARDUINO_BUILD)/%.S.o: $(ARDUINO_DIR)/%.S $(ARDUINO_MKDEPS)
 	$(MKDIR) $(dir $@)
-	$(AS) -o "$@" -c "$<"
+	$(AS) "$@" -c "$<"
 
 $(ARDUINO_LIB): $(ARDUINO_OBJS) $(ARDUINO_MKDEPS)
 	$(AR) rc $(ARDUINO_LIB) $(ARDUINO_OBJS)

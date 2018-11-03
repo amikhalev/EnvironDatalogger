@@ -4,7 +4,7 @@
 #include "sensor_data.hpp"
 #include "datetime_util.hpp"
 
-Sensors::Sensors() : dust(DustSensor::instance), // use the singleton instance
+Sensors::Sensors() : dust(&DustSensor::instance), // use the singleton instance
                      gas(),
                      environment(), // use the i2c bus
                      rtc()
@@ -15,7 +15,7 @@ void Sensors::begin()
 {
     debug(F("DustSensor::begin..."));
     int16_t res;
-    res = dust.begin(DUST_PIN);
+    res = dust->begin(DUST_PIN);
     if (res < 0)
     {
         info(F("dust fail: "));
@@ -59,10 +59,14 @@ void Sensors::begin()
     }
     else
     {
-        if (!rtc.isrunning())
+        if (!rtc.isrunning()) 
+        {
             infoln(F("rtc not running"));
-        else
+        } 
+        else 
+        {
             debug(F("good"));
+        }
 #if DEBUG
         debug(F(". now="));
         DateTime now = rtc.now();
@@ -82,7 +86,7 @@ void Sensors::read(SensorsData *data)
     int16_t res;
 
     debug("Sensors.read()...");
-    dust.sample();
+    dust->sample();
     res = gas.read();
     if (res < 0)
     {
@@ -94,8 +98,8 @@ void Sensors::read(SensorsData *data)
     // data->time_micros = micros();
     data->time_rtc = rtc.now();
 
-    data->dust_low_ratio_raw = dust.getLowRatio();
-    data->dust_concentration = dust.getConcentration();
+    data->dust_low_ratio_raw = dust->getLowRatio();
+    data->dust_concentration = dust->getConcentration();
 
     data->gas_concentration_nh3 = gas.measure_NH3();
     data->gas_concentration_co = gas.measure_CO();
